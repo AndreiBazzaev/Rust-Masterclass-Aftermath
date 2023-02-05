@@ -1,5 +1,8 @@
 use crate::vertex::Vertex;
 use glam::{Vec2, Vec4};
+
+
+// Stores information needed in "pixel shader"
 #[derive(Debug, Copy, Clone)]
 pub struct PixelSHaderVertex {
     pub vertex: Vertex,
@@ -40,6 +43,7 @@ impl Triangle {
     pub fn new(v0: PixelSHaderVertex, v1: PixelSHaderVertex, v2: PixelSHaderVertex) -> Self {
         Self(v0, v1, v2)
     }
+    // Used to keep triangle vertices in the same orientation after lipping them with near plane
     pub fn reorder(&self, order: VerticesOrder) -> Self {
         match order {
             VerticesOrder::ABC => *self,
@@ -52,6 +56,7 @@ impl Triangle {
     }
 }
 
+// Used to lower iteration steps in "pixel shader"
 pub struct BoundingBox2D {
     pub left: f32,
     pub right: f32,

@@ -37,6 +37,7 @@ impl Camera {
             self.transform.up(),
         )
     }
+    // Move with WASD and turn with holding mouse
     pub fn move_cam(&mut self, window: &Window) {
         let mut axis = glam::vec2(0.0, 0.0);
         if window.is_key_down(Key::A) {

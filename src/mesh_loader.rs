@@ -3,7 +3,8 @@ use crate::render_object::*;
 use crate::utils::*;
 use crate::texture::*;
 use std::path::Path;
-//TODO: make an option
+
+// TODO, store transforms of each node
 fn load_node( node: &gltf::Node,
     render_object: &mut RenderObject,
     buffers: &[gltf::buffer::Data])
@@ -24,6 +25,7 @@ fn load_node( node: &gltf::Node,
             node.transform().decomposed().2,
             
         );
+    // Load vertex data, indices, texture ids
     if let Some(mesh) = node.mesh() {
             render_object.load_from_gltf(&mesh, &buffers);
      }
@@ -33,10 +35,13 @@ fn load_node( node: &gltf::Node,
             buffers,)
      }
 }
+
 pub fn load_gltf(path: &Path) -> RenderObject {
-    // handle loading textures, cameras, meshes here
     let (document, buffers, images) = gltf::import(path).unwrap();
+
     let mut render_object = RenderObject::new();
+
+    // Load all images from model
     for image in images {
         let mut data: Vec<u32> = Vec::new();
         let mut depth = 0 as usize;
@@ -67,6 +72,7 @@ pub fn load_gltf(path: &Path) -> RenderObject {
             depth,
         }));
     }
+    // Fill RO data
     for scene in document.scenes() {
         for node in scene.nodes() {
             println!(
@@ -85,12 +91,8 @@ pub fn load_gltf(path: &Path) -> RenderObject {
                 node.transform().decomposed().2,
                 
             );
-            // if let Some(mesh) = node.mesh() {
-            //     render_object.load_from_gltf(&mesh, &buffers);
-            // }
             load_node(&node, &mut render_object, &buffers);
-        }
-        
+        } 
     }
     render_object
 }

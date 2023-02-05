@@ -4,6 +4,7 @@ use crate::transform::Transform;
 use crate::vertex::Vertex;
 use glam::{Vec2, Vec3};
 #[derive(Debug, Clone)]
+// Constant data for a model pass
 pub struct CBuffer {
     pub m: glam::Mat4,
     pub v: glam::Mat4,
@@ -25,6 +26,7 @@ pub struct Primitive {
     vertices: Vec<Vertex>,
     texture_id: u32,
 }
+// Model
 pub struct RenderObject {
     transform: Transform,
     cbuffer: CBuffer,
@@ -100,6 +102,7 @@ impl Primitive {
         }
     }
 }
+
 impl RenderObject {
     pub fn new() -> Self {
         Self {
@@ -125,12 +128,14 @@ impl RenderObject {
     pub fn textures_ref(&self) -> &Vec<Option<Texture>> {
         &self.textures
     }
+    // Update CBuffer
     pub fn update(&mut self, camera: &Camera) {
         self.cbuffer.m = self.transform.model_mat();
         self.cbuffer.v = camera.view();
         self.cbuffer.mv = self.cbuffer.v * self.cbuffer.m;
         self.cbuffer.mvp = camera.projection() * self.cbuffer.mv;
     }
+    // Gets data from GLTF, TODO: use all data
     pub fn load_from_gltf(
         &mut self,
         mesh: &gltf::Mesh, 
@@ -143,6 +148,7 @@ impl RenderObject {
 
         for primitive in mesh.primitives() {
             let reader = primitive.reader(|buffer| Some(&buffers[buffer.index()]));
+
             if let Some(indices_reader) = reader.read_indices() {
                 indices_reader.into_u32().for_each(|i| indices.push(i));
             }
@@ -163,6 +169,7 @@ impl RenderObject {
             let mut render_primintive = Primitive::new(); 
             render_primintive.add_section_from_buffers(&indices, &positions, &normals, &colors, &tex_coords);
            
+            // For now I use only base color texture
             let base_texture= primitive.material().pbr_metallic_roughness().base_color_texture();
             if let Some(tex) = base_texture {
                 render_primintive.set_texture_id(tex.texture().index() as u32);

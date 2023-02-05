@@ -1,3 +1,4 @@
+// Includes all other files for the project
 pub mod buffer2d;
 pub mod camera;
 pub mod geometry;

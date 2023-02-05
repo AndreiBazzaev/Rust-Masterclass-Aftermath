@@ -1,4 +1,4 @@
-// is used to reduce main size
+// Is used to reduce size of main
 use crate::{vertex::Vertex, RenderObject, mesh_loader::*, Camera, utils::*, renderer::*};
 use std::path::Path;
 
@@ -9,55 +9,6 @@ pub struct Scene {
 }
 impl Scene {
     pub fn new() -> Self {
-        Self {
-            
-            indices: vec![
-                // Front face
-                2, 1, 0, 0, 3, 2, // Back face
-                4, 5, 6, 6, 7, 4, // Left face
-                8, 9, 10, 10, 11, 8, // Right face
-                14, 13, 12, 12, 15, 14, // Top face
-                16, 17, 18, 18, 19, 16, // Bottom face
-                22, 21, 20, 20, 23, 22,
-            ],
-
-            vertices: vec![
-                // Front face
-                Vertex::new_simple(-0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 0.0, 1.0),
-                Vertex::new_simple(0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0, 1.0),
-                Vertex::new_simple(0.5, -0.5, 0.5, 1.0, 1.0, 0.0, 1.0, 0.0),
-                Vertex::new_simple(-0.5, -0.5, 0.5, 1.0, 0.0, 0.0, 0.0, 0.0),
-                // Back face
-                Vertex::new_simple(-0.5, 0.5, -0.5, 0.0, 1.0, 0.0, 0.0, 1.0),
-                Vertex::new_simple(0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 1.0, 1.0),
-                Vertex::new_simple(0.5, -0.5, -0.5, 0.0, 1.0, 1.0, 1.0, 0.0),
-                Vertex::new_simple(-0.5, -0.5, -0.5, 0.0, 0.0, 0.0, 0.0, 0.0),
-                // Left face
-                Vertex::new_simple(-0.5, 0.5, 0.5, 0.0, 1.0, 1.0, 0.0, 1.0),
-                Vertex::new_simple(-0.5, 0.5, -0.5, 1.0, 0.0, 1.0, 1.0, 1.0),
-                Vertex::new_simple(-0.5, -0.5, -0.5, 0.0, 1.0, 1.0, 1.0, 0.0),
-                Vertex::new_simple(-0.5, -0.5, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0),
-                // Right face
-                Vertex::new_simple(0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 0.0, 1.0),
-                Vertex::new_simple(0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 1.0, 1.0),
-                Vertex::new_simple(0.5, -0.5, -0.5, 1.0, 1.0, 1.0, 1.0, 0.0),
-                Vertex::new_simple(0.5, -0.5, 0.5, 1.0, 1.0, 0.0, 0.0, 0.0),
-                // Top face
-                Vertex::new_simple(-0.5, 0.5, 0.5, 1.0, 0.0, 0.0, 0.0, 0.0),
-                Vertex::new_simple(0.5, 0.5, 0.5, 1.0, 1.0, 0.0, 1.0, 0.0),
-                Vertex::new_simple(0.5, 0.5, -0.5, 0.0, 1.0, 1.0, 1.0, 1.0),
-                Vertex::new_simple(-0.5, 0.5, -0.5, 1.0, 1.0, 0.0, 0.0, 1.0),
-                // Bottom face
-                Vertex::new_simple(-0.5, -0.5, 0.5, 1.0, 0.0, 0.0, 0.0, 0.0),
-                Vertex::new_simple(0.5, -0.5, 0.5, 1.0, 1.0, 0.0, 1.0, 0.0),
-                Vertex::new_simple(0.5, -0.5, -0.5, 0.0, 1.0, 1.0, 1.0, 1.0),
-                Vertex::new_simple(-0.5, -0.5, -0.5, 1.0, 1.0, 0.0, 0.0, 1.0),
-            ],
-            render_objects: vec![],
-        }
-    }
-
-    pub fn new_many_helmets() -> Self {
         
         let mut new_render_objects: Vec<RenderObject> = vec![];
         for i in 0..=2 as usize {

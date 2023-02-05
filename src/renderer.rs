@@ -9,7 +9,6 @@ use glam::{Vec2, Vec3, Vec4,  Vec4Swizzles};
 
 pub fn clear_screen(buffer: &mut Vec<u32>, z_buffer: &mut Vec<f32>, clear_color: Vec3) {
     for (i, pixel) in buffer.iter_mut().enumerate() {
-        //buffer[i] = clear_color;
         *pixel = to_argb8(
             255,
             clear_color.x as u8,
@@ -19,6 +18,7 @@ pub fn clear_screen(buffer: &mut Vec<u32>, z_buffer: &mut Vec<f32>, clear_color:
         z_buffer[i] = f32::INFINITY;
     }
 }
+// Clips a single vertex
 pub fn clip_pass(
     vert: &PixelSHaderVertex,
     render_window_size: &RenderWindowSize,
@@ -50,12 +50,13 @@ pub fn clip_pass(
     );
     ps_vert
 }
+// Clips whole triangle
 pub fn clip_pass_triangle(tr: &mut Triangle, render_window_size: &RenderWindowSize) {
     tr.0 = clip_pass(&tr.0, render_window_size);
     tr.1 = clip_pass(&tr.1, render_window_size);
     tr.2 = clip_pass(&tr.2, render_window_size);
 }
-
+// Used for backface culling (can be used for front face)
 pub fn is_facing_cam(
     vertex_0: &Vertex,
     vertex_1: &Vertex,
@@ -67,7 +68,7 @@ pub fn is_facing_cam(
     let world_coord_2 = cbuffer.mv * vertex_2.position;
     cull_triangle_backface(&world_coord_0, &world_coord_1, &world_coord_2)
 }
-
+// Transforms coordinates to world space 
 pub fn vertex_pass(vert: &Vertex, cbuffer: &CBuffer) -> PixelSHaderVertex {
     let mut ps_vert = PixelSHaderVertex::new();
     let vert_pass_coord = cbuffer.mvp * vert.position;
@@ -80,6 +81,7 @@ pub fn vertex_pass_triangle(vert1: &Vertex,vert2: &Vertex, vert3: &Vertex, cbuff
     vertex_pass(vert2, cbuffer),
     vertex_pass(vert3, cbuffer))
 }
+// Draws a pixel if it is inside the passed triangle
 pub fn draw_if_in_triangle(
     cur_pos: &[i32],
     tr: &Triangle,
@@ -105,6 +107,7 @@ pub fn draw_if_in_triangle(
 
         let depth = bary.x * tr.0.ndc.z + bary.y * tr.1.ndc.z + bary.z * tr.2.ndc.z;
 
+        // Deoth check
         if depth < z_buffer[pixel_id] {
             
             z_buffer[pixel_id] = depth;
@@ -112,16 +115,11 @@ pub fn draw_if_in_triangle(
 
             if let Some(tex) = texture {
                 let tex_coords = (bary.x * tr.0.vertex.uv + bary.y * tr.1.vertex.uv + bary.z * tr.2.vertex.uv)* perspective_correction;
-
+                // Simple direct lighting
                 let normal = ((bary.x * tr.0.vertex.normal + bary.y * tr.1.vertex.normal + bary.z * tr.2.vertex.normal) * perspective_correction).normalize();
                 let n_dot_l = normal.dot(*light_dir);
                 let ambient = 0.2;
                 let shading_value: Vec4 = tex.color_vec_at_uv(tex_coords.x, tex_coords.y) * n_dot_l + ambient;
-
-                //color = to_argb8(255, (n_dot_l * 255.0) as u8 , (n_dot_l * 255.0 )as u8, (n_dot_l * 255.0 )as u8);
-
-                //color = tex.argb_at_uv(tex_coords.x, tex_coords.y);
-                
                 color = to_argb8((shading_value.w) as u8, (shading_value.z) as u8,(shading_value.y) as u8, (shading_value.x) as u8);
             }
             buffer[pixel_id] = color;
@@ -129,7 +127,6 @@ pub fn draw_if_in_triangle(
     
         true
     } else {
-        
         //buffer[pixel_id] = to_argb8(255, 255, 0, 0);
         false
     }
@@ -251,7 +248,7 @@ pub fn raster_mesh(
             let first_vert_id = render_object.primitives()[prim].indices()[i] as usize;
             let second_vert_id = render_object.primitives()[prim].indices()[i + 1] as usize;
             let third_vert_id = render_object.primitives()[prim].indices()[i + 2] as usize;
-
+            // backface culling
             if !is_facing_cam(
                 &render_object.primitives()[prim].vertices()[first_vert_id],
                 &render_object.primitives()[prim].vertices()[second_vert_id],
@@ -260,7 +257,7 @@ pub fn raster_mesh(
             ) {
                 continue;
             }
-
+            
             let mut render_poly = 
             vertex_pass_triangle(
             &render_object.primitives()[prim].vertices()[first_vert_id],
@@ -311,6 +308,7 @@ pub fn raster_mesh(
     }
 }
 
+// Creates a bounding box in screen space
 pub fn triangle_screen_bounding_box(
     positions: &[Vec2; 3],
     render_window_size: &RenderWindowSize,

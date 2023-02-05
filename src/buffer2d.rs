@@ -1,3 +1,4 @@
+// Used to navigate through 2D buffers like textures
 pub fn index_to_coords(p: usize, width: usize) -> (usize, usize) {
     (p % width, p / width)
 }
