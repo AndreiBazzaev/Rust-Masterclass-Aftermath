@@ -1,4 +1,3 @@
-use gltf::scene::iter::Children;
 
 use crate::render_object::*;
 use crate::utils::*;
@@ -9,6 +8,22 @@ fn load_node( node: &gltf::Node,
     render_object: &mut RenderObject,
     buffers: &[gltf::buffer::Data])
     {
+        println!(
+            "Node #{} has {} children, camera: {:?}, mesh: {:?}, transform: {:?}",
+            node.index(),
+            node.children().count(),
+            node.camera(),
+            node.mesh().is_some(),
+            node.transform(),
+        );
+        println!(
+            "Node #{} has transform: trans {:?}, rot {:?}, scale {:?},",
+            node.index(),
+            node.transform().decomposed().0,
+            node.transform().decomposed().1,
+            node.transform().decomposed().2,
+            
+        );
     if let Some(mesh) = node.mesh() {
             render_object.load_from_gltf(&mesh, &buffers);
      }

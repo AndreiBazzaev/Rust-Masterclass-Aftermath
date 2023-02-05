@@ -3,7 +3,6 @@ use crate::texture::Texture;
 use crate::transform::Transform;
 use crate::vertex::Vertex;
 use glam::{Vec2, Vec3};
-use std::{path::Path};
 #[derive(Debug, Clone)]
 pub struct CBuffer {
     pub m: glam::Mat4,
@@ -141,8 +140,7 @@ impl RenderObject {
         let mut tex_coords: Vec<Vec2> = Vec::new();
         let mut normals: Vec<Vec3> = Vec::new();
         let mut indices = vec![];
-        // TODO: handle errors
-       
+
         for primitive in mesh.primitives() {
             let reader = primitive.reader(|buffer| Some(&buffers[buffer.index()]));
             if let Some(indices_reader) = reader.read_indices() {
@@ -161,8 +159,10 @@ impl RenderObject {
             }
            
             let colors: Vec<Vec3> = positions.iter().map(|_| Vec3::ONE).collect();
+
             let mut render_primintive = Primitive::new(); 
             render_primintive.add_section_from_buffers(&indices, &positions, &normals, &colors, &tex_coords);
+           
             let base_texture= primitive.material().pbr_metallic_roughness().base_color_texture();
             if let Some(tex) = base_texture {
                 render_primintive.set_texture_id(tex.texture().index() as u32);

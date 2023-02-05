@@ -272,7 +272,6 @@ pub fn raster_mesh(
             render_poly.0.vertex.normal = (cof_mat * render_poly.0.vertex.normal.extend(0.0)).xyz();
             render_poly.1.vertex.normal = (cof_mat * render_poly.1.vertex.normal.extend(0.0)).xyz();
             render_poly.2.vertex.normal = (cof_mat * render_poly.2.vertex.normal.extend(0.0)).xyz();
-
             match clip_cull_triangle(&render_poly) {
                 ClipResult::None => {}
                 ClipResult::One(mut tri) => {

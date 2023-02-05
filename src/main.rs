@@ -18,7 +18,7 @@ fn main() {
     let mut buffer: Vec<u32> = vec![0; WIDTH * HEIGHT];
     let mut z_buffer = vec![f32::INFINITY; WIDTH * HEIGHT];
     // Limit to max ~60 fps update rate
-    //window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+    window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
     let mut scene = Scene::new_many_helmets();
 
