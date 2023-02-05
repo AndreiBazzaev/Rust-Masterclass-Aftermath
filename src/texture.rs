@@ -3,7 +3,9 @@ use crate::utils::*;
 use stb_image;
 use std::path::Path;
 use glam::Vec4;
-
+use gltf::Gltf;
+use gltf::import;
+use stb_image::image;
 pub struct Texture {
     pub width: usize,
     pub height: usize,
@@ -55,4 +57,33 @@ impl Texture {
         let original_argb: [u8; 4] = unsafe { std::mem::transmute(self.argb_at_uv(u, v)) };
         glam::vec4(original_argb[0] as f32, original_argb[1] as f32,original_argb[2] as f32,original_argb[3] as f32)
     }
+    // fn load_texture_from_gltf(&mut self, gltf: &gltf::Gltf, index: usize) -> Self {
+    //     let texture = gltf.textures().nth(index);
+    //     if let Some(tex) = texture {
+    //         if let Some (name) = tex.name().as_deref(){
+    //             let path = Path::new(name);
+    //             let decoded_image = stb_image::image::load(path);
+    //             if let stb_image::image::LoadResult::ImageU8(image) = decoded_image {
+    //                 let data = (0..image.data.len() / 3)
+    //                     .map(|id| {
+    //                         to_argb8(
+    //                             255,
+    //                             image.data[id * 3],
+    //                             image.data[id * 3 + 1],
+    //                             image.data[id * 3 + 2],
+    //                         )
+    //                     })
+    //                     .collect();
+    //                 Self {
+    //                     width: image.width,
+    //                     height: image.height,
+    //                     data,
+    //                     depth: image.depth,
+    //                 }
+    //             } else {
+    //                 panic!("Unsupported texture type");
+    //             }
+    //                 }
+    //     }
+    // }
 }

@@ -281,7 +281,8 @@ pub fn raster_mesh(
 
                     raster_triangle(
                         &tri,
-                        render_object.primitives()[prim].texture(),
+                        //render_object.primitives()[prim].texture(),
+                        &render_object.textures_ref()[0],
                         buffer,
                         z_buffer,
                         render_window_size,
@@ -291,7 +292,8 @@ pub fn raster_mesh(
                     clip_pass_triangle(&mut tri.0, render_window_size);
                     raster_triangle(
                         &tri.0,
-                        render_object.primitives()[prim].texture(),
+                        //render_object.primitives()[prim].texture(),
+                        &render_object.textures_ref()[0],
                         buffer,
                         z_buffer,
                         render_window_size,
@@ -299,7 +301,8 @@ pub fn raster_mesh(
                     clip_pass_triangle(&mut tri.1, render_window_size);
                     raster_triangle(
                         &tri.1,
-                        render_object.primitives()[prim].texture(),
+                        //render_object.primitives()[prim].texture(),
+                        &render_object.textures_ref()[0],
                         buffer,
                         z_buffer,
                         render_window_size,

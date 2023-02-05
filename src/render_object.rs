@@ -30,6 +30,7 @@ pub struct RenderObject {
     transform: Transform,
     cbuffer: CBuffer,
     primitives: Vec<Primitive>,
+    textures: Vec<Option<Texture>>,
 }
 
 impl Primitive {
@@ -103,6 +104,7 @@ impl RenderObject {
             primitives: Vec::new(),
             transform: Transform::IDENTITY,
             cbuffer: CBuffer::new(),
+            textures: Vec::new(),
         }
     }
     pub fn cbuffer(&self) -> &CBuffer {
@@ -113,7 +115,13 @@ impl RenderObject {
         &mut self.transform
     }
     pub fn primitives(&self) -> &Vec<Primitive> {
-        &&self.primitives
+        &self.primitives
+    }
+    pub fn textures(&mut self) -> &mut Vec<Option<Texture>> {
+        &mut self.textures
+    }
+    pub fn textures_ref(&self) -> &Vec<Option<Texture>> {
+        &self.textures
     }
     pub fn update(&mut self, camera: &Camera) {
         self.cbuffer.m = self.transform.model_mat();
@@ -121,26 +129,17 @@ impl RenderObject {
         self.cbuffer.mv = self.cbuffer.v * self.cbuffer.m;
         self.cbuffer.mvp = camera.projection() * self.cbuffer.mv;
     }
-    pub fn load_from_gltf_with_texture(
-        mesh: &gltf::Mesh,
-        buffers: &[gltf::buffer::Data],
-        texture_path: &Path,
-    ) -> RenderObject {
-        let mut render_object = RenderObject::load_from_gltf(mesh, buffers);
-        for prim in 0..render_object.primitives.len(){
-            render_object.primitives[prim].texture = Some(Texture::load(texture_path));
-        }
-        
-        render_object
-    }
+    pub fn load_from_gltf(
+        &mut self,
+        mesh: &gltf::Mesh, 
+        buffers: &[gltf::buffer::Data]){
 
-    pub fn load_from_gltf(mesh: &gltf::Mesh, buffers: &[gltf::buffer::Data]) -> RenderObject {
         let mut positions: Vec<Vec3> = Vec::new();
         let mut tex_coords: Vec<Vec2> = Vec::new();
         let mut normals: Vec<Vec3> = Vec::new();
         let mut indices = vec![];
         // TODO: handle errors
-        let mut result = RenderObject::new();
+       
         for primitive in mesh.primitives() {
             let reader = primitive.reader(|buffer| Some(&buffers[buffer.index()]));
             if let Some(indices_reader) = reader.read_indices() {
@@ -164,8 +163,7 @@ impl RenderObject {
             println!("positions: {:?}", positions.len());
             let mut render_primintive = Primitive::new(); 
             render_primintive.add_section_from_buffers(&indices, &positions, &normals, &colors, &tex_coords);
-            result.primitives.push(render_primintive);
+            self.primitives.push(render_primintive);
         }
-        result
     }
 }

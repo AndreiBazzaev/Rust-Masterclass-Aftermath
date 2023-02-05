@@ -62,9 +62,8 @@ impl Scene {
         let mut new_render_objects: Vec<RenderObject> = vec![];
         for i in 0..=2 as usize {
             for j in 0..=2 as usize {
-            let mut render_object = load_gltf_with_texture(
+            let mut render_object = load_gltf(
                 Path::new("assets/helmet/Helmet.gltf"),
-                Path::new("assets/helmet/Default_albedo.png"),
             );
             render_object.transform().set_translation(glam::vec3(i as f32 * 2.0 - 2.5, j as f32 * 2.0 - 2.5, 0.0));
             new_render_objects.push(render_object);
