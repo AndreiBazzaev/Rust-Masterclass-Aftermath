@@ -1,8 +1,23 @@
+use gltf::scene::iter::Children;
+
 use crate::render_object::*;
 use crate::utils::*;
 use crate::texture::*;
 use std::path::Path;
 //TODO: make an option
+fn load_node( node: &gltf::Node,
+    render_object: &mut RenderObject,
+    buffers: &[gltf::buffer::Data])
+    {
+    if let Some(mesh) = node.mesh() {
+            render_object.load_from_gltf(&mesh, &buffers);
+     }
+     for child_node in node.children(){
+        load_node( &child_node,
+            render_object,
+            buffers,)
+     }
+}
 pub fn load_gltf(path: &Path) -> RenderObject {
     // handle loading textures, cameras, meshes here
     let (document, buffers, images) = gltf::import(path).unwrap();
@@ -55,11 +70,12 @@ pub fn load_gltf(path: &Path) -> RenderObject {
                 node.transform().decomposed().2,
                 
             );
-            if let Some(mesh) = node.mesh() {
-                render_object.load_from_gltf(&mesh, &buffers);
-                //render_object
-            }
+            // if let Some(mesh) = node.mesh() {
+            //     render_object.load_from_gltf(&mesh, &buffers);
+            // }
+            load_node(&node, &mut render_object, &buffers);
         }
+        
     }
     render_object
 }

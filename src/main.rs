@@ -20,13 +20,6 @@ fn main() {
     // Limit to max ~60 fps update rate
     //window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
 
-    // let scene = Scene::new();
-    // let mut render_object = RenderObject::from_indices_vertices_texture(
-    //     &scene.indices(),
-    //     &scene.vertices(),
-    //     Path::new("assets/bojan.jpg"),
-    // );
-
     let mut scene = Scene::new_many_helmets();
 
     let aspect_ratio = WIDTH as f32 / HEIGHT as f32;

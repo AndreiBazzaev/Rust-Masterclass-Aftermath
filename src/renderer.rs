@@ -264,11 +264,6 @@ pub fn raster_mesh(
             &render_object.primitives()[prim].vertices()[third_vert_id],
             render_object.cbuffer());
 
-            // let model_view_matrix_inv_transpose = render_object.cbuffer().mv.transpose();
-        
-            //  render_poly.0.vertex.normal = (render_object.cbuffer().m * render_poly.0.vertex.normal.extend(0.0)).normalize().xyz();
-            //  render_poly.1.vertex.normal = (render_object.cbuffer().m * render_poly.1.vertex.normal.extend(0.0)).normalize().xyz();
-            //  render_poly.1.vertex.normal = (render_object.cbuffer().m  * render_poly.2.vertex.normal.extend(0.0)).normalize().xyz();
             let cof_mat = cofactor(&render_object.cbuffer().m );
             render_poly.0.vertex.normal = (cof_mat * render_poly.0.vertex.normal.extend(0.0)).xyz();
             render_poly.1.vertex.normal = (cof_mat * render_poly.1.vertex.normal.extend(0.0)).xyz();
@@ -281,8 +276,7 @@ pub fn raster_mesh(
 
                     raster_triangle(
                         &tri,
-                        //render_object.primitives()[prim].texture(),
-                        &render_object.textures_ref()[0],
+                        &render_object.textures_ref()[render_object.primitives()[prim].texture_id()],
                         buffer,
                         z_buffer,
                         render_window_size,
@@ -292,8 +286,7 @@ pub fn raster_mesh(
                     clip_pass_triangle(&mut tri.0, render_window_size);
                     raster_triangle(
                         &tri.0,
-                        //render_object.primitives()[prim].texture(),
-                        &render_object.textures_ref()[0],
+                        &render_object.textures_ref()[render_object.primitives()[prim].texture_id()],
                         buffer,
                         z_buffer,
                         render_window_size,
@@ -301,8 +294,7 @@ pub fn raster_mesh(
                     clip_pass_triangle(&mut tri.1, render_window_size);
                     raster_triangle(
                         &tri.1,
-                        //render_object.primitives()[prim].texture(),
-                        &render_object.textures_ref()[0],
+                        &render_object.textures_ref()[render_object.primitives()[prim].texture_id()],
                         buffer,
                         z_buffer,
                         render_window_size,

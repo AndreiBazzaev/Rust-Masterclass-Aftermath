@@ -24,7 +24,7 @@ impl CBuffer {
 pub struct Primitive {
     indices: Vec<u32>,
     vertices: Vec<Vertex>,
-    texture: Option<Texture>,
+    texture_id: u32,
 }
 pub struct RenderObject {
     transform: Transform,
@@ -38,7 +38,7 @@ impl Primitive {
         Self {
             indices: Vec::new(),
             vertices: Vec::new(),
-            texture: Option::None,
+            texture_id: 0,
         }
     }
 
@@ -49,8 +49,11 @@ impl Primitive {
     pub fn vertices(&self) -> &Vec<Vertex> {
         &self.vertices
     }
-    pub fn texture(&self) -> &Option<Texture> {
-        &self.texture
+    pub fn texture_id(&self) -> usize {
+        self.texture_id as usize
+    }
+    pub fn set_texture_id(&mut self, id:u32) {
+        self.texture_id = id;
     }
     pub fn from_indices_vertices(new_indices: &[u32], new_vertices: &[Vertex]) -> Self {
         let mut primitive = Primitive::new();
@@ -60,11 +63,11 @@ impl Primitive {
     pub fn from_indices_vertices_texture(
         new_indices: &[u32],
         new_vertices: &[Vertex],
-        texture_path: &Path,
+        texture_id: u32,
     ) -> Self {
         let mut primitive = Primitive::new();
         primitive.push_indices_vertices(new_indices, new_vertices);
-        primitive.texture = Some(Texture::load(texture_path));
+        primitive.texture_id = texture_id;
         primitive
     }
     fn push_indices_vertices(&mut self, new_indices: &[u32], new_vertices: &[Vertex]) {
@@ -158,11 +161,13 @@ impl RenderObject {
             }
            
             let colors: Vec<Vec3> = positions.iter().map(|_| Vec3::ONE).collect();
-            println!("Num indices: {:?}", indices.len());
-            println!("tex_coords: {:?}", tex_coords.len());
-            println!("positions: {:?}", positions.len());
             let mut render_primintive = Primitive::new(); 
             render_primintive.add_section_from_buffers(&indices, &positions, &normals, &colors, &tex_coords);
+            let base_texture= primitive.material().pbr_metallic_roughness().base_color_texture();
+            if let Some(tex) = base_texture {
+                render_primintive.set_texture_id(tex.texture().index() as u32);
+            }
+            
             self.primitives.push(render_primintive);
         }
     }
