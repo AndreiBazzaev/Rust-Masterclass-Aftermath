@@ -110,12 +110,14 @@ impl Scene {
         z_buffer: &mut Vec<f32>,
         render_window_size: &RenderWindowSize,
     ){
+        let light_dir = glam::vec3(1.0, 0.3,0.5).normalize();
         for i in 0..= self.render_objects.len() as usize - 1{
             raster_mesh(
                 &self.render_objects[i],
                 buffer,
                 z_buffer,
                 render_window_size,
+                &light_dir,
             );
         }
     }

@@ -87,6 +87,7 @@ pub fn draw_if_in_triangle(
     buffer: &mut Vec<u32>,
     z_buffer: &mut Vec<f32>,
     render_window_size: &RenderWindowSize,
+    light_dir: &Vec3,
 ) -> bool {
     let coords = glam::vec2(cur_pos[0] as f32, cur_pos[1] as f32) + 0.5;
     let pixel_id = coords_to_index(
@@ -113,7 +114,7 @@ pub fn draw_if_in_triangle(
                 let tex_coords = (bary.x * tr.0.vertex.uv + bary.y * tr.1.vertex.uv + bary.z * tr.2.vertex.uv)* perspective_correction;
 
                 let normal = ((bary.x * tr.0.vertex.normal + bary.y * tr.1.vertex.normal + bary.z * tr.2.vertex.normal) * perspective_correction).normalize();
-                let n_dot_l = normal.dot(Vec3::ONE.normalize());
+                let n_dot_l = normal.dot(*light_dir);
                 let ambient = 0.2;
                 let shading_value: Vec4 = tex.color_vec_at_uv(tex_coords.x, tex_coords.y) * n_dot_l + ambient;
 
@@ -140,6 +141,7 @@ pub fn raster_triangle(
     buffer: &mut Vec<u32>,
     z_buffer: &mut Vec<f32>,
     render_window_size: &RenderWindowSize,
+    light_dir: &Vec3,
 ) {
     if let Some(bb) = triangle_screen_bounding_box(&[tr.0.sc, tr.1.sc, tr.2.sc], render_window_size)
     {
@@ -173,7 +175,7 @@ pub fn raster_triangle(
                     if was_in_triangle == false{
                         for x in (bb.left as usize)..=bb.right as usize {
                             let coords: [i32; 2] = [x as i32, cur_pos[1] as i32];
-                            draw_if_in_triangle(&coords,tr,texture,  buffer, z_buffer,  render_window_size);
+                            draw_if_in_triangle(&coords,tr,texture,  buffer, z_buffer,  render_window_size, light_dir);
                         }
                     }
 
@@ -208,6 +210,7 @@ pub fn raster_triangle(
                 buffer,
                 z_buffer,
                 render_window_size,
+                light_dir,
             ) {
                 was_in_triangle = true;
             } else {
@@ -241,6 +244,7 @@ pub fn raster_mesh(
     buffer: &mut Vec<u32>,
     z_buffer: &mut Vec<f32>,
     render_window_size: &RenderWindowSize,
+    light_dir: &Vec3,
 ) {
     for prim in 0..render_object.primitives().len(){
         for i in (0..render_object.primitives()[prim].indices().len()).step_by(3) {
@@ -280,6 +284,7 @@ pub fn raster_mesh(
                         buffer,
                         z_buffer,
                         render_window_size,
+                        light_dir
                     );
                 }
                 ClipResult::Two(mut tri) => {
@@ -290,6 +295,7 @@ pub fn raster_mesh(
                         buffer,
                         z_buffer,
                         render_window_size,
+                        light_dir
                     );
                     clip_pass_triangle(&mut tri.1, render_window_size);
                     raster_triangle(
@@ -298,6 +304,7 @@ pub fn raster_mesh(
                         buffer,
                         z_buffer,
                         render_window_size,
+                        light_dir
                     );
                 }
             }
