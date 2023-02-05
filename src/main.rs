@@ -40,7 +40,7 @@ fn main() {
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
 
-        clear_screen(&mut buffer, &mut z_buffer, glam::vec3(255.0, 255.0, 0.0));
+        clear_screen(&mut buffer, &mut z_buffer, glam::vec3(244.0, 182.0, 194.0));
 
         camera.move_cam(&window);
         
