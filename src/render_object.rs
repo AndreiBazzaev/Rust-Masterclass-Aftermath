@@ -3,7 +3,7 @@ use crate::texture::Texture;
 use crate::transform::Transform;
 use crate::vertex::Vertex;
 use glam::{Vec2, Vec3};
-use std::path::Path;
+use std::{path::Path};
 #[derive(Debug, Clone)]
 pub struct CBuffer {
     pub m: glam::Mat4,
@@ -21,21 +21,22 @@ impl CBuffer {
         }
     }
 }
-pub struct RenderObject {
+pub struct Primitive {
     indices: Vec<u32>,
     vertices: Vec<Vertex>,
-    transform: Transform,
-    cbuffer: CBuffer,
     texture: Option<Texture>,
 }
+pub struct RenderObject {
+    transform: Transform,
+    cbuffer: CBuffer,
+    primitives: Vec<Primitive>,
+}
 
-impl RenderObject {
+impl Primitive {
     pub fn new() -> Self {
         Self {
             indices: Vec::new(),
             vertices: Vec::new(),
-            transform: Transform::IDENTITY,
-            cbuffer: CBuffer::new(),
             texture: Option::None,
         }
     }
@@ -47,37 +48,23 @@ impl RenderObject {
     pub fn vertices(&self) -> &Vec<Vertex> {
         &self.vertices
     }
-    pub fn cbuffer(&self) -> &CBuffer {
-        &self.cbuffer
-    }
-
     pub fn texture(&self) -> &Option<Texture> {
         &self.texture
     }
-
-    pub fn transform(&mut self) -> &mut Transform {
-        &mut self.transform
-    }
-    pub fn update(&mut self, camera: &Camera) {
-        self.cbuffer.m = self.transform.model_mat();
-        self.cbuffer.v = camera.view();
-        self.cbuffer.mv = self.cbuffer.v * self.cbuffer.m;
-        self.cbuffer.mvp = camera.projection() * self.cbuffer.mv;
-    }
     pub fn from_indices_vertices(new_indices: &[u32], new_vertices: &[Vertex]) -> Self {
-        let mut render_object = RenderObject::new();
-        render_object.push_indices_vertices(new_indices, new_vertices);
-        render_object
+        let mut primitive = Primitive::new();
+        primitive.push_indices_vertices(new_indices, new_vertices);
+        primitive
     }
     pub fn from_indices_vertices_texture(
         new_indices: &[u32],
         new_vertices: &[Vertex],
         texture_path: &Path,
     ) -> Self {
-        let mut render_object = RenderObject::new();
-        render_object.push_indices_vertices(new_indices, new_vertices);
-        render_object.texture = Some(Texture::load(texture_path));
-        render_object
+        let mut primitive = Primitive::new();
+        primitive.push_indices_vertices(new_indices, new_vertices);
+        primitive.texture = Some(Texture::load(texture_path));
+        primitive
     }
     fn push_indices_vertices(&mut self, new_indices: &[u32], new_vertices: &[Vertex]) {
         let offset = self.vertices.len() as u32;
@@ -109,14 +96,41 @@ impl RenderObject {
             self.vertices.push(vertex)
         }
     }
+}
+impl RenderObject {
+    pub fn new() -> Self {
+        Self {
+            primitives: Vec::new(),
+            transform: Transform::IDENTITY,
+            cbuffer: CBuffer::new(),
+        }
+    }
+    pub fn cbuffer(&self) -> &CBuffer {
+        &self.cbuffer
+    }
 
+    pub fn transform(&mut self) -> &mut Transform {
+        &mut self.transform
+    }
+    pub fn primitives(&self) -> &Vec<Primitive> {
+        &&self.primitives
+    }
+    pub fn update(&mut self, camera: &Camera) {
+        self.cbuffer.m = self.transform.model_mat();
+        self.cbuffer.v = camera.view();
+        self.cbuffer.mv = self.cbuffer.v * self.cbuffer.m;
+        self.cbuffer.mvp = camera.projection() * self.cbuffer.mv;
+    }
     pub fn load_from_gltf_with_texture(
         mesh: &gltf::Mesh,
         buffers: &[gltf::buffer::Data],
         texture_path: &Path,
     ) -> RenderObject {
         let mut render_object = RenderObject::load_from_gltf(mesh, buffers);
-        render_object.texture = Some(Texture::load(texture_path));
+        for prim in 0..render_object.primitives.len(){
+            render_object.primitives[prim].texture = Some(Texture::load(texture_path));
+        }
+        
         render_object
     }
 
@@ -148,7 +162,9 @@ impl RenderObject {
             println!("Num indices: {:?}", indices.len());
             println!("tex_coords: {:?}", tex_coords.len());
             println!("positions: {:?}", positions.len());
-            result.add_section_from_buffers(&indices, &positions, &normals, &colors, &tex_coords)
+            let mut render_primintive = Primitive::new(); 
+            render_primintive.add_section_from_buffers(&indices, &positions, &normals, &colors, &tex_coords);
+            result.primitives.push(render_primintive);
         }
         result
     }

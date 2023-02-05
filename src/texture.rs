@@ -3,6 +3,7 @@ use crate::utils::*;
 use stb_image;
 use std::path::Path;
 use glam::Vec4;
+
 pub struct Texture {
     pub width: usize,
     pub height: usize,

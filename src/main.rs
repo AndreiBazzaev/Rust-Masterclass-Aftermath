@@ -1,5 +1,4 @@
 use minifb::{Key, Window, WindowOptions};
-use std::path::Path;
 
 const WIDTH: usize = 500;
 const HEIGHT: usize = 500;

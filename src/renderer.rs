@@ -242,67 +242,69 @@ pub fn raster_mesh(
     z_buffer: &mut Vec<f32>,
     render_window_size: &RenderWindowSize,
 ) {
-    for i in (0..render_object.indices().len()).step_by(3) {
-        let first_vert_id = render_object.indices()[i] as usize;
-        let second_vert_id = render_object.indices()[i + 1] as usize;
-        let third_vert_id = render_object.indices()[i + 2] as usize;
+    for prim in 0..render_object.primitives().len(){
+        for i in (0..render_object.primitives()[prim].indices().len()).step_by(3) {
+            let first_vert_id = render_object.primitives()[prim].indices()[i] as usize;
+            let second_vert_id = render_object.primitives()[prim].indices()[i + 1] as usize;
+            let third_vert_id = render_object.primitives()[prim].indices()[i + 2] as usize;
 
-        if !is_facing_cam(
-            &render_object.vertices()[first_vert_id],
-            &render_object.vertices()[second_vert_id],
-            &render_object.vertices()[third_vert_id],
-            &render_object.cbuffer(),
-        ) {
-            continue;
-        }
-
-        let mut render_poly = 
-        vertex_pass_triangle(
-        &render_object.vertices()[first_vert_id],
-        &render_object.vertices()[second_vert_id], 
-        &render_object.vertices()[third_vert_id],
-        render_object.cbuffer());
-
-        // let model_view_matrix_inv_transpose = render_object.cbuffer().mv.transpose();
-       
-        //  render_poly.0.vertex.normal = (render_object.cbuffer().m * render_poly.0.vertex.normal.extend(0.0)).normalize().xyz();
-        //  render_poly.1.vertex.normal = (render_object.cbuffer().m * render_poly.1.vertex.normal.extend(0.0)).normalize().xyz();
-        //  render_poly.1.vertex.normal = (render_object.cbuffer().m  * render_poly.2.vertex.normal.extend(0.0)).normalize().xyz();
-        let cof_mat = cofactor(&render_object.cbuffer().m );
-        render_poly.0.vertex.normal = (cof_mat * render_poly.0.vertex.normal.extend(0.0)).xyz();
-        render_poly.1.vertex.normal = (cof_mat * render_poly.1.vertex.normal.extend(0.0)).xyz();
-        render_poly.2.vertex.normal = (cof_mat * render_poly.2.vertex.normal.extend(0.0)).xyz();
-
-        match clip_cull_triangle(&render_poly) {
-            ClipResult::None => {}
-            ClipResult::One(mut tri) => {
-                clip_pass_triangle(&mut tri, render_window_size);
-
-                raster_triangle(
-                    &tri,
-                    render_object.texture(),
-                    buffer,
-                    z_buffer,
-                    render_window_size,
-                );
+            if !is_facing_cam(
+                &render_object.primitives()[prim].vertices()[first_vert_id],
+                &render_object.primitives()[prim].vertices()[second_vert_id],
+                &render_object.primitives()[prim].vertices()[third_vert_id],
+                &render_object.cbuffer(),
+            ) {
+                continue;
             }
-            ClipResult::Two(mut tri) => {
-                clip_pass_triangle(&mut tri.0, render_window_size);
-                raster_triangle(
-                    &tri.0,
-                    render_object.texture(),
-                    buffer,
-                    z_buffer,
-                    render_window_size,
-                );
-                clip_pass_triangle(&mut tri.1, render_window_size);
-                raster_triangle(
-                    &tri.1,
-                    render_object.texture(),
-                    buffer,
-                    z_buffer,
-                    render_window_size,
-                );
+
+            let mut render_poly = 
+            vertex_pass_triangle(
+            &render_object.primitives()[prim].vertices()[first_vert_id],
+            &render_object.primitives()[prim].vertices()[second_vert_id], 
+            &render_object.primitives()[prim].vertices()[third_vert_id],
+            render_object.cbuffer());
+
+            // let model_view_matrix_inv_transpose = render_object.cbuffer().mv.transpose();
+        
+            //  render_poly.0.vertex.normal = (render_object.cbuffer().m * render_poly.0.vertex.normal.extend(0.0)).normalize().xyz();
+            //  render_poly.1.vertex.normal = (render_object.cbuffer().m * render_poly.1.vertex.normal.extend(0.0)).normalize().xyz();
+            //  render_poly.1.vertex.normal = (render_object.cbuffer().m  * render_poly.2.vertex.normal.extend(0.0)).normalize().xyz();
+            let cof_mat = cofactor(&render_object.cbuffer().m );
+            render_poly.0.vertex.normal = (cof_mat * render_poly.0.vertex.normal.extend(0.0)).xyz();
+            render_poly.1.vertex.normal = (cof_mat * render_poly.1.vertex.normal.extend(0.0)).xyz();
+            render_poly.2.vertex.normal = (cof_mat * render_poly.2.vertex.normal.extend(0.0)).xyz();
+
+            match clip_cull_triangle(&render_poly) {
+                ClipResult::None => {}
+                ClipResult::One(mut tri) => {
+                    clip_pass_triangle(&mut tri, render_window_size);
+
+                    raster_triangle(
+                        &tri,
+                        render_object.primitives()[prim].texture(),
+                        buffer,
+                        z_buffer,
+                        render_window_size,
+                    );
+                }
+                ClipResult::Two(mut tri) => {
+                    clip_pass_triangle(&mut tri.0, render_window_size);
+                    raster_triangle(
+                        &tri.0,
+                        render_object.primitives()[prim].texture(),
+                        buffer,
+                        z_buffer,
+                        render_window_size,
+                    );
+                    clip_pass_triangle(&mut tri.1, render_window_size);
+                    raster_triangle(
+                        &tri.1,
+                        render_object.primitives()[prim].texture(),
+                        buffer,
+                        z_buffer,
+                        render_window_size,
+                    );
+                }
             }
         }
     }

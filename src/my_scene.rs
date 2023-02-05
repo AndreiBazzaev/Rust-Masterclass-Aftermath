@@ -1,5 +1,5 @@
 // is used to reduce main size
-use crate::{vertex::Vertex, RenderObject, mesh_loader::*, camera, Camera, utils::*, renderer::*};
+use crate::{vertex::Vertex, RenderObject, mesh_loader::*, Camera, utils::*, renderer::*};
 use std::path::Path;
 
 pub struct Scene {
